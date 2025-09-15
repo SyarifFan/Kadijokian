@@ -108,7 +108,7 @@
     .order-category-btn, .layanan-nav-btn { transition: transform 0.2s ease-in-out; }
     .order-category-btn:hover, .layanan-nav-btn:hover { transform: scale(1.02); }
     
-    /* Tooltip for process indicator */
+    /* --- PERBAIKAN TOOLTIP DIMULAI DI SINI --- */
     .tooltip-container { position: relative; cursor: pointer; }
     .tooltip-text {
       visibility: hidden;
@@ -122,17 +122,35 @@
       z-index: 10;
       bottom: 135%;
       left: 50%;
-      margin-left: -70px;
+      /* Mengganti margin-left dengan transform untuk positioning yang lebih baik */
+      transform: translateX(-50%); 
       opacity: 0;
       transition: opacity 0.3s ease-in-out;
       font-size: 12px;
       font-weight: 500;
       pointer-events: none;
     }
-    .tooltip-container:hover .tooltip-text {
+
+    /* Aturan untuk tooltip pertama agar rata kiri dan tidak terpotong */
+    #process-indicator .tooltip-container:first-child .tooltip-text {
+        left: 0;
+        transform: translateX(0);
+    }
+    
+    /* Aturan untuk tooltip terakhir agar rata kanan dan tidak terpotong */
+    #process-indicator .tooltip-container:last-child .tooltip-text {
+        left: auto;
+        right: 0;
+        transform: translateX(0);
+    }
+    
+    /* Menampilkan tooltip saat di-hover ATAU saat container memiliki class 'tooltip-active' (untuk klik) */
+    .tooltip-container:hover .tooltip-text,
+    .tooltip-container.tooltip-active .tooltip-text {
       visibility: visible;
       opacity: 1;
     }
+    /* --- PERBAIKAN TOOLTIP SELESAI --- */
   </style>
 </head>
 <body class="bg-gray-50 text-gray-800 flex flex-col min-h-screen">
@@ -1243,6 +1261,25 @@
       });
       cancelAllBtn.addEventListener('click', resetCart);
 
+      // --- PENAMBAHAN KODE JAVASCRIPT UNTUK TOOLTIP ---
+      processIndicator.addEventListener('click', e => {
+        const clickedContainer = e.target.closest('.tooltip-container');
+        if (!clickedContainer) return;
+
+        const wasActive = clickedContainer.classList.contains('tooltip-active');
+        
+        // Nonaktifkan semua tooltip terlebih dahulu
+        processIndicator.querySelectorAll('.tooltip-container').forEach(container => {
+          container.classList.remove('tooltip-active');
+        });
+        
+        // Jika yang diklik sebelumnya tidak aktif, maka aktifkan. Ini membuat efek toggle.
+        if (!wasActive) {
+          clickedContainer.classList.add('tooltip-active');
+        }
+      });
+      // --- AKHIR PENAMBAHAN KODE ---
+
       // Checkout
       checkoutBtn.addEventListener('click', ()=>{
         updateProcessIndicator(3);
@@ -1486,4 +1523,3 @@
   </script>
 </body>
 </html>
-
